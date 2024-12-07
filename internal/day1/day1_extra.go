@@ -2,15 +2,13 @@ package day1
 
 import (
 	"github.com/flyrell/aoc2024/internal/utils"
-	"math"
-	"sort"
 	"strconv"
 	"strings"
 )
 
-func Run() float64 {
+func RunExtra() int {
 	var left = make([]int, 1000)
-	var right = make([]int, 1000)
+	var right = make(map[int]int)
 	utils.ReadInputFileByLine("/app/internal/day1/input", func(i int, row string) {
 		numbers := strings.Split(row, "   ")
 
@@ -20,20 +18,28 @@ func Run() float64 {
 		}
 
 		rightN, err := strconv.Atoi(numbers[1])
-		if err == nil {
-			right[i] = rightN
+		if err != nil {
+			return
+		}
+
+		if _, ok := right[rightN]; !ok {
+			right[rightN] = 1
+		} else {
+			right[rightN] += 1
 		}
 	})
 
-	sum := 0.0
-	sort.Ints(left)
-	sort.Ints(right)
-	for i := range left {
-		sum += math.Abs(float64(left[i] - right[i]))
+	sum := 0
+	for _, num := range left {
+		if _, ok := right[num]; !ok {
+			continue
+		}
+		sum += num * right[num]
 	}
 
 	defer func() {
-		println("Result of Day 1 is:", int(sum))
+		println("Result of Day 1 Extra is:", sum)
 	}()
+
 	return sum
 }
