@@ -1,0 +1,138 @@
+---
+run:
+  timeout: 5m
+# https://golangci-lint.run/usage/configuration/
+linters-settings:
+  dupl:
+    threshold: 100
+  # exhaustive:
+  #   default-signifies-exhaustive: false
+  funlen:
+    lines: 100
+    statements: 50
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - appendAssign
+      - whyNoLint
+      - wrapperFunc
+      - sloppyReassign
+      - hugeParam # generics panic + https://github.com/go-critic/go-critic/issues/1224
+      - rangeValCopy # generics panic
+      - typeDefFirst # generics panic
+      - paramTypeCombine # # generics panic linux only, mac ok
+  gocyclo:
+    min-complexity: 15
+  goimports:
+    local-prefixes: github.com/golangci/golangci-lint
+  govet:
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+  lll:
+    line-length: 140
+    tab-width: 1
+  misspell:
+    locale: US
+  nolintlint:
+    allow-unused: false # report any unused nolint directives
+    require-explanation: false # don't require an explanation for nolint directives
+    require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+linters:
+  # please, do not use `enable-all`: it's deprecated and will be removed soon.
+  # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
+  disable-all: true
+  enable:
+    - bodyclose
+    # - deadcode DEPRICATED
+    # - depguard - would require external file with allowed imports
+    - dogsled
+    - errcheck
+    - exhaustive
+    - funlen
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - nolintlint
+    #- rowserrcheck https://github.com/golangci/golangci-lint/issues/2649.
+    - staticcheck
+    #- structcheck DEPRICATED
+    - stylecheck
+    - unconvert
+    - unparam
+    - unused
+    # - varcheck DEPRICATED
+    - whitespace
+  # don't enable:
+  # - interfacer DEPRICATED
+  # - noctx DEPRICATED
+  # - asciicheck
+  # - gochecknoglobals
+  # - gocognit  40 >
+  # - scopelint DEPRICATED
+  # - godot
+  # - godox
+  # - goerr113
+  # - maligned DEPRICATED
+  # - nestif
+  # - prealloc
+  # - testpackage
+  # - wsl
+issues:
+  exclude-use-default: false
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+    # https://github.com/go-critic/go-critic/issues/926
+    - linters:
+        - gocritic
+      text: "unnecessaryDefer:"
+    # conflicts with exhaustive switch
+    - linters:
+        - gocritic
+      text: "emptyFallthrough:"
+    - linters:
+        - lll
+      source: "^//go:generate "
+    - linters:
+        - stylecheck
+      text: "ST1000: at least one file in a package should have a package comment"
+    - linters:
+        - revive
+      text: "package-comments: should have a package comment"
+  exclude-dirs:
+    - dev
+    - tmp
+    - docs
+
+output:
+  print-issued-lines: true
